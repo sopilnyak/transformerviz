@@ -253,7 +253,7 @@ export default {
         })
         .attr("x2", this.attentionBoxWidth * this.numHeads + this.centerWidth)
         .attr("stroke-width", 3)
-        .attr("stroke", (d, i) => "#cccccc")
+        .attr("stroke", "#cccccc")
         .attr("opacity", d => d)
         .attr("stroke-opacity", d => d);
     },
@@ -283,7 +283,7 @@ export default {
           this.data = response;
         } else {
           alert("error");
-          this.data = test;
+          this.data = example;
         }
         this.isLoading = false;
         this.renderVizualization();
