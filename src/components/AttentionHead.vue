@@ -253,7 +253,7 @@ export default {
         })
         .attr("x2", this.attentionBoxWidth * this.numHeads + this.centerWidth)
         .attr("stroke-width", 3)
-        .attr("stroke", (d, i) => "#cccccc")
+        .attr("stroke", "#cccccc")
         .attr("opacity", d => d)
         .attr("stroke-opacity", d => d);
     },
@@ -275,7 +275,7 @@ export default {
       d3.select("#left").remove();
       d3.select("#right").remove();
 
-      let url = `http://localhost:5000/?model=${this.model}&source=${this.source}&target=${this.target}`;
+      let url = `http://transformerviz.eastus.cloudapp.azure.com:5000/?model=${this.model}&source=${this.source}&target=${this.target}`;
       let xhr = new XMLHttpRequest();
       xhr.onload = xhr.onerror = () => {
         if (xhr.status == 200) {
@@ -283,7 +283,7 @@ export default {
           this.data = response;
         } else {
           alert("error");
-          this.data = test;
+          this.data = example;
         }
         this.isLoading = false;
         this.renderVizualization();
