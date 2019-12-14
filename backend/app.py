@@ -1,6 +1,6 @@
 from flask import Flask, request
 from flask_cors import CORS
-from transformers import BertTokenizer, BertModel
+from transformers import BertTokenizer, BertModel, XLMTokenizer, XLMModel, GPT2Tokenizer, GPT2Model
 import torch
 
 app = Flask(__name__)
@@ -13,14 +13,23 @@ def format_attention(attention):
 
 @app.route('/')
 def get_attentions():
-    model = request.args.get('model')
+    model_name = request.args.get('model')
     source = request.args.get('source')
     target = request.args.get('target')
 
-    model_version = 'bert-base-uncased'
-    do_lower_case = True
-    model = BertModel.from_pretrained(model_version, output_attentions=True)
-    tokenizer = BertTokenizer.from_pretrained(model_version, do_lower_case=do_lower_case)
+    if model_name == 'XLM':
+        model_version = 'xlm-mlm-ende-1024'
+        model = XLMModel.from_pretrained(model_version, output_attentions=True)
+        tokenizer = XLMTokenizer.from_pretrained(model_version)
+    elif model_name == 'GPT-2':
+        model_version = 'gpt2'
+        model = GPT2Model.from_pretrained(model_version, output_attentions=True)
+        tokenizer = GPT2Tokenizer.from_pretrained(model_version)
+    else:
+        # BERT
+        model_version = 'bert-base-uncased'
+        model = BertModel.from_pretrained(model_version, output_attentions=True)
+        tokenizer = BertTokenizer.from_pretrained(model_version, do_lower_case=True)
 
     inputs = tokenizer.encode_plus(source, target, return_tensors='pt', add_special_tokens=True)
     token_type_ids = inputs['token_type_ids']
