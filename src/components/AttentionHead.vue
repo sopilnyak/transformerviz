@@ -6,13 +6,13 @@
         <option>GPT-2</option>
         <option>XLNet</option>
         <option>XLM</option>
-        <option>RoBERTa</option>
-        <option>ALBERT</option>
       </select>
       <input v-model="source" placeholder="Source sentence" class="textInput" />
       <input v-model="target" placeholder="Target sentence" class="textInput" />
       <button type="submit" class="submitButton">Submit</button>
     </form>
+    <div class="tip">Hover over a word to see the attention patterns</div>
+    <div v-if="isLoading" class="loading">Loading...</div>
     <svg
       ref="heads"
       :height="height"
@@ -24,7 +24,8 @@
 
 <script>
 import * as d3 from "d3";
-import test from "./test";
+import example from "./example";
+import XLMExample from "./XLMExample";
 
 export default {
   name: "AttentionHead",
@@ -33,8 +34,8 @@ export default {
       model: "BERT",
       source: "the cat sat on the mat",
       target: "the cat lay on the rug",
-      width: 1100,
-      height: 600,
+      width: 1040,
+      height: 700,
       textBoxWidth: 120,
       textBoxHeight: 30,
       attentionBoxWidth: 30,
@@ -45,12 +46,13 @@ export default {
       numHeads: 12,
       activeTokenIndex: -1,
       activeTokenLocation: "left",
-      data: {}
+      data: {},
+      isLoading: false
     };
   },
 
   mounted() {
-    this.data = test;
+    this.data = example;
     this.renderVizualization();
   },
 
@@ -60,6 +62,16 @@ export default {
     },
     activeTokenLocation: function() {
       this.onActiveTokenUpdate();
+    },
+    model: function() {
+      if (this.model == "XLM") {
+        d3.select("#left").remove();
+        d3.select("#right").remove();
+        this.data = XLMExample;
+        this.source = "the quick brown fox jumps over the lazy dog";
+        this.target = "schnelle braune Fuchs springt über den faulen Hund";
+        this.renderVizualization();
+      }
     }
   },
 
@@ -259,16 +271,22 @@ export default {
     },
 
     onSumbit() {
-      let url = `http://localhost:8888/?model=${this.model}&source=${this.source}&target=${this.target}`;
+      this.isLoading = true;
+      d3.select("#left").remove();
+      d3.select("#right").remove();
+
+      let url = `http://localhost:5000/?model=${this.model}&source=${this.source}&target=${this.target}`;
       let xhr = new XMLHttpRequest();
       xhr.onload = xhr.onerror = () => {
         if (xhr.status == 200) {
-          response = JSON.parse(xhr.responseText);
-          this.data = test;
-          this.renderVizualization();
+          let response = JSON.parse(xhr.responseText);
+          this.data = response;
         } else {
           alert("error");
+          this.data = test;
         }
+        this.isLoading = false;
+        this.renderVizualization();
       };
       xhr.open("GET", url, true /* async */);
       xhr.send(null);
@@ -279,7 +297,7 @@ export default {
 
 <style scoped>
 .form {
-  margin: 2em;
+  margin: 0.5em;
 }
 
 .modelSelect {
@@ -307,5 +325,14 @@ export default {
 
 .visualization {
   margin: 0 auto;
+}
+
+.loading {
+  font-size: 20px;
+}
+
+.tip {
+  font-style: italic;
+  margin-bottom: 2em;
 }
 </style>
