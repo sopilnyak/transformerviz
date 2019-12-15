@@ -3,9 +3,8 @@
     <form v-on:submit.prevent="onSumbit" action="#" method="post" class="form">
       <select v-model="model" class="modelSelect">
         <option>BERT</option>
-        <option>GPT-2</option>
-        <option>XLNet</option>
         <option>XLM</option>
+        <option>GPT-2</option>
       </select>
       <input v-model="source" placeholder="Source sentence" class="textInput" />
       <input v-model="target" placeholder="Target sentence" class="textInput" />
